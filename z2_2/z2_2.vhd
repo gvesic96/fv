@@ -59,7 +59,7 @@ architecture Behavioral of z2_2 is
 begin
 
 --MULTIPLEKSER
-    sel <= f & e & d;
+    sel <= d & e & f;
     
     mux8on1: process(sel, b, c, a)
     begin
