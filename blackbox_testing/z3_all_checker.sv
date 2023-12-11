@@ -8,20 +8,29 @@ checker blackbox_checker (clk, rst, x, y);
 		
 	logic x_s;
 	
+	//dodatni signali
+	//logic y0_s, y
+	
+	
+	
 	always @(posedge clk)
 		x_s <= rst ? 1'b0 : x;
 	
 
-	assert property (y(0) |=> !y(0));
-	assert property (s_eventually(y(2)) ##1 y[=2]);
-	assert property (!y(4) |-> (y(1) ##1 y(3)));//vrati se posle na ovaj
-	assert property ((y(2) ##1 y(5)) |=> y(6));
-	assert property (!y(2)[*3] |-> y(7));
+	assert property (y[0] |=> !y[0]);
+	assert property (y[2] ##1 y[2] ##1 y[2]);
+	assert property (!y[4] |-> (y[1] ##1 y[3]));//vrati se posle na ovaj
+	assert property ((y[2] ##1 y[5]) |=> y[6]);
+	assert property (!y[2][*3] |-> y[7]);
 	
-	assert property (y(8)[*2:3] ##1 !y(9) ##1 y(10));
-	assert property (!(y(0) ##1 y(1)) |=> y(11));
-	assert property (y(2)[->2] |=> y(16));
-	//assert property (
+	assert property (y[8][*2:3] ##1 !y[9] ##1 y[10]);
+	assert property (!(y[0] ##1 y[1]) |=> y[11]);
+	assert property (y[2][->2] |=> y[16]);
+	assert property (y[28:17][=3] |=> y[15]);
+	cover property  (y[29][*10]);
+	
+	assert property (y[31:30] NEVER '11');
+	
 /*
 	assert property ((ENDD1 or RDY1 or START1) |-> rt1_s); // zadatak1	
 	assert property (ER2 |-> ##[1:3] !ER2); //zadatak2
