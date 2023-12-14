@@ -133,6 +133,20 @@ module hanoi  #(parameter S = 4)
     
 	
 	
+	
+	restrict_dont_move_to_same_tower:
+		restrict property (fr[1:0] != to[1:0]);//from and to must be different in every cycle
+	
+	restrict_2_times_from_same_tower:
+		restrict property (fr[1:0][*2] |=> !fr[1:0]);//can not move disks more than 2 times consecutively from same tower
+
+	restrict_dont_move_just_placed:
+		restrict property (to[1:0] |=> !fr[1:0]);// can not move disk that is placed in previous cycle
+	
+	/*assume_tower_restrict:
+	  restrict property ((!fr[1] && !fr[0]) |=> (!fr[1] && !fr[0]));
+	*/
+	
 	//----------------------------------------------------------
 	/*assume_wolf_sheep :
       restrict property (~((t & ~w & ~s) | (~t & w & s)));
