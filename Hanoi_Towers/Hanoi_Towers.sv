@@ -114,20 +114,27 @@ module hanoi  #(parameter S = 4)
 
 	//----------------- odavde je na dalje je vezano za FPV alat ---------------------------
 
-    assign state = {t, w, s, c};
-    wire [2:0] in3 = {wolf, sheep, cab};
+    assign state = r2; // dodelio sam state-u registar 2 u kome na kraju hocu da coverujem 1111 slozenu kulu
+    wire [3:0] in4 = {fr, to}; //ovde sam napravio zicu na kojoj su stavljeni inputi fr i to kojima drajvujem sistem
 
+	//standardno klokovanje
     default clocking
         @(posedge clk);
     endclocking
 
-    default disable iff (rst);
+    default disable iff (rst); //reset pomocu rst signala
 
     assume_valid_input :
-      assume property ((in3 == 3'b000) | (in3 == 3'b001) |
-                       (in3 == 3'b010) | (in3 == 3'b100));
+      assume property ((in4 == 4'b0001) | (in4 == 4'b0010) | //skida sa nulte kule
+                       (in4 == 4'b0100) | (in4 == 4'b0110) | //skida sa prve kule
+					   (in4 == 4'b1000) | (in4 == 4'b1001)); //skida sa druge kule
+					   //imam ukupno 6 validnih inputa jer ni jedna kula ne moze stavljati sama na sebe
 
-    assume_wolf_sheep :
+    
+	
+	
+	//----------------------------------------------------------
+	/*assume_wolf_sheep :
       restrict property (~((t & ~w & ~s) | (~t & w & s)));
 
     assume_sheep_cab :
@@ -145,6 +152,9 @@ module hanoi  #(parameter S = 4)
 
     assume_ss_sheep :
       restrict property (same_side(sheep, s, t));
+	*/
+	//--------------------------------------------------------- ovo su stare assume naredbe
 
-    cov_main: cover property (state == 4'b1111);
+
+    cov_main: cover property (state == 4'b1111); //ovde treba da coverujem slozenu kulu u registru r2, posto bi u njemu trebalo da se zavrsi algoritam
 endmodule
