@@ -1,0 +1,35 @@
+module check_tl_ctrl
+  (
+   input clk, input rst,
+   input start, en, input [2:0] ryg,
+   input red, yellow, green
+   );
+
+    default clocking @(posedge clk); endclocking
+    default disable iff (rst);
+
+    c0 : cover property (1'b1 [*3]);
+
+    res_en : restrict property ( en );
+
+    cov_green : cover property ( green );
+
+    res_red : restrict property ( ryg == 3'b100 );
+
+    cov_final : cover property ( red ##2 green ##2 red );
+
+    chk_green : assert property ( s_eventually green );
+
+    logic init;
+
+    always_ff @(posedge clk)
+      begin
+          init <= 1'b0;
+
+           if (rst)
+             init <= 1'b1;
+       end
+
+    res_srart : restrict property (init |-> 1'b1 [*2] ##1 start);
+
+endmodule
