@@ -54,7 +54,7 @@ end control_path;
 
 architecture Behavioral of control_path is
 
-    type mc_state_type is (IDLE, LOAD, DIV_1, DIV_1a, DIV_2, DIV_3a, DIV_3b, BUFF_STATE);
+    type mc_state_type is (IDLE, LOAD, DIV_1, DIV_1a, DIV_2, DIV_3a, DIV_3b, READY_STATE);
     signal state_reg, state_next : mc_state_type;
 
     signal cnt_s : unsigned (6 downto 0) := (others => '0');
@@ -72,6 +72,7 @@ begin
     control_proc: process (state_reg, start) is
     begin
       --NEED TO ASSIGN DEFAULT VALUES TO OUTPUT SIGNALS
+      --cnt_s <= (others => '0');
       d_quotient <= (others => '0');
       rmn_we <= '0';
       load_sel <= '0';
@@ -101,11 +102,9 @@ begin
           alu_sel <= '1';
           state_next <= DIV_1a;
         when DIV_1a =>
-            --buffer state
-          rmn_we <= '0';
           alu_en <= '0';
+          rmn_we <= '0';
           state_next <= DIV_2;
-          --BUFFER STATE     BUFFER STATE       BUFFER STATE
         when DIV_2 =>
           rmn_we <= '0';
           alu_en <= '0';
@@ -122,37 +121,35 @@ begin
           quotient_ctrl <= "01";
           divisor_ctrl <= "10";
           cnt_s <= cnt_s +1;
-          --if(cnt_s < 65) then
-          --  state_next <= DIV_1;
-          --else
-          --  state_next <= IDLE;
-          --  ready <= '1';
-          --end if;
-          state_next <= BUFF_STATE;
+          if(cnt_s < 64) then
+            --STARTED COUNTIG FROM 0 -> 64 is the 65th iteration !
+            state_next <= DIV_1;
+          else
+            state_next <= READY_STATE;
+            --ready <= '1';
+          end if;
+          --state_next <= BUFF_STATE;
         when DIV_3b =>
           --REMAINDER IS NEGATIVE
           rmn_we <= '1';
-          
           alu_en <= '1';
           alu_sel <= '0'; --set to zero for ADDITION
           d_quotient(0) <= '0'; --shift '0' from left into quotient register
           quotient_ctrl <= "01";
           divisor_ctrl <= "10";
           cnt_s <= cnt_s + 1;
-          --if(cnt_s < 65) then
-          --  state_next <= DIV_1;
-          --else
-          --  state_next <= IDLE;
-          --  ready <= '1';
-          --end if;
-          state_next <= BUFF_STATE;
-        when BUFF_STATE =>
-          if(cnt_s < 65) then
+          if(cnt_s < 64) then
+            --STARTED COUNTIG FROM 0 -> 64 is the 65th iteration !
             state_next <= DIV_1;
           else
-            state_next <= IDLE;
-            ready <= '1';
+            state_next <= READY_STATE;
+            --ready <= '1';
           end if;
+          when READY_STATE =>
+            cnt_s <= (others => '0');
+            ready <= '1';
+            state_next <= IDLE;
+          
       end case;
     end process control_proc;
     
